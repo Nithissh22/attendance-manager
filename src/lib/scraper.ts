@@ -14,7 +14,7 @@ const LOGIN_SELECTORS = {
 } as const;
 
 const ATTENDANCE_SELECTORS = {
-  pageUrl: '/academia/studentInfo/Student_Attendance_Details',
+  pageUrl: '/srm_university/academia-academic-services/page/My_Attendance',
   table: 'table',
 } as const;
 
@@ -250,7 +250,7 @@ export async function scrapeAttendance(cookies: string[]): Promise<AttendanceRec
       throw new Error('Session expired');
     }
 
-    await page.waitForTimeout(5000);
+    await page.waitForSelector('table', { timeout: 15000 }).catch(() => {});
 
     // Log frames
     const frames = page.frames();
@@ -285,39 +285,33 @@ export async function scrapeAttendance(cookies: string[]): Promise<AttendanceRec
         if (i === 0) return; // skip header
 
         const cells = $(row).find('td');
-        if (cells.length < 5) return;
+        if (cells.length < 9) return;
 
-        const texts = cells.map((_, c) => $(c).text().trim()).get();
+        const rawCodeHtml = $(cells[0]).html() || '';
+        const courseCode = rawCodeHtml.split('<br')[0].replace(/<[^>]*>?/gm, '').trim();
 
-        const courseCode = texts[0];
         if (!courseCode || !courseCode.match(/^[0-9A-Z]{5,10}$/)) return;
 
-        let held = 0;
-        let attended = 0;
-        let pctRaw = 0;
-        let category = 'Theory';
-
-        const foundNumbers = texts.filter(t => !isNaN(parseFloat(t)));
-        if (foundNumbers.length >= 3) {
-          held = parseInt(texts[4] || '0', 10);
-          attended = parseInt(texts[5] || '0', 10);
-          pctRaw = parseFloat(texts[7] || texts[texts.length - 1] || '0');
-          category = texts[2] || 'Theory';
-        } else {
-          pctRaw = parseFloat(texts[2] || '0');
-        }
-
-        const percentage = isNaN(pctRaw)
-          ? held > 0 ? Math.round((attended / held) * 100 * 10) / 10 : 0
-          : pctRaw;
+        const courseName = $(cells[1]).text().trim();
+        const category = $(cells[2]).text().trim();
+        const faculty = $(cells[3]).text().trim();
+        const slot = $(cells[4]).text().trim();
+        const room = $(cells[5]).text().trim();
+        const classesHeld = parseInt($(cells[6]).text().trim(), 10);
+        const classesAbsent = parseInt($(cells[7]).text().trim(), 10);
+        const percentage = parseFloat($(cells[8]).text().trim());
+        const classesAttended = classesHeld - classesAbsent;
 
         records.push({
           courseCode,
-          courseName: texts[1] || 'Unknown Course',
-          category,
-          classesHeld: held || null,
-          classesAttended: attended || null,
-          percentage,
+          courseName: courseName || 'Unknown Course',
+          category: category || 'Theory',
+          faculty,
+          slot,
+          room,
+          classesHeld: isNaN(classesHeld) ? null : classesHeld,
+          classesAttended: isNaN(classesAttended) ? null : classesAttended,
+          percentage: isNaN(percentage) ? 0 : percentage,
         });
       });
     });

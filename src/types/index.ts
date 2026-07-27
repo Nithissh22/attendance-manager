@@ -2,6 +2,9 @@ export interface AttendanceRecord {
   courseCode: string;
   courseName: string;
   category: 'Theory' | 'Lab' | 'Project' | string;
+  faculty?: string;
+  slot?: string;
+  room?: string;
   classesHeld: number | null;
   classesAttended: number | null;
   percentage: number;
