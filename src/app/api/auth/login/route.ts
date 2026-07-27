@@ -5,6 +5,7 @@ import { SESSION_OPTIONS } from '@/lib/session';
 import { checkRateLimit } from '@/lib/rateLimit';
 import { saveSessionCookies } from '@/lib/store';
 import crypto from 'crypto';
+import { load } from 'cheerio';
 import type { SessionData, Cookie } from '@/types';
 
 function parseManualCookieString(cookieString: string): Cookie[] {
@@ -66,8 +67,23 @@ export async function POST(req: NextRequest) {
 
   try {
     const sessionCookies = parseManualCookieString(cookieString);
-    const studentName = 'Student'; // Cannot scrape name without automated login
-    const netId = 'manual-session';
+    
+    let studentName = 'Student';
+    let netId = 'manual-session';
+    
+    try {
+      const res = await fetch('https://academia.srmist.edu.in/', {
+        headers: { Cookie: cookieString }
+      });
+      const html = await res.text();
+      const $ = load(html);
+      const nameText = $('.user-name, [class*="welcome"], [class*="student"]').first().text();
+      if (nameText) {
+        studentName = nameText.replace(/welcome[,!]?/i, '').trim() || 'Student';
+      }
+    } catch (e) {
+      console.log('[login] Failed to fetch student name:', e);
+    }
 
     // --- Store session ---
     const cookieStore = await cookies();
