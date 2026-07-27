@@ -70,11 +70,15 @@ export default function LoginPage() {
           
           {/* Instructions */}
           <div className="mb-6 bg-white/5 border border-white/10 p-4" style={{ clipPath: 'polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px)' }}>
-            <p className="text-[11px] text-white/80 leading-relaxed font-sans mb-2">
-              <span className="font-bold text-accent uppercase tracking-wider block mb-1">How to connect:</span>
-              1. Log into academia.srmist.edu.in normally in Chrome.<br/>
-              2. Open DevTools (F12) → Application tab → Cookies.<br/>
-              3. Select academia.srmist.edu.in, then copy all cookie name=value pairs as a single semicolon-separated string and paste below.
+            <p className="text-[11px] text-white/80 leading-relaxed font-sans mb-3">
+              <span className="font-bold text-accent uppercase tracking-wider block mb-1">Fast Method (Bookmarklet):</span>
+              1. Drag this link to your bookmarks bar: <a href="javascript:(function(){navigator.clipboard.writeText(document.cookie).then(()=>alert('Cookies copied!\n\nNote: If AttendX fails, use the F12 DevTools method as critical Zoho cookies might be HttpOnly.')).catch(e=>alert('Copy failed: '+e.message));})();" className="text-accent underline font-bold px-1">Copy AttendX Cookies</a><br/>
+              2. Log into academia.srmist.edu.in, click the bookmark, and paste below.
+            </p>
+            <p className="text-[11px] text-white/80 leading-relaxed font-sans mb-2 border-t border-white/10 pt-3">
+              <span className="font-bold text-white/50 uppercase tracking-wider block mb-1">Fallback Method (If bookmarklet fails):</span>
+              1. On academia.srmist.edu.in, open DevTools (F12) → Application tab → Cookies.<br/>
+              2. Select academia.srmist.edu.in, copy everything and paste below.
             </p>
           </div>
 
