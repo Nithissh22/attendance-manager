@@ -1,0 +1,13 @@
+{
+  "rawJson": [
+    {
+      "courseCode": "21CSC303J",
+      "courseName": "SOFTWARE ENGINEERING AND PROJECT MANAGEMENT",
+      "category": "85.00",
+      "classesHeld": 21,
+      "classesAttended": null,
+      "percentage": 80
+    }
+  ],
+  "rawHtmlFallback": false
+}

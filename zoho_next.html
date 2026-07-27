@@ -1,0 +1,274 @@
+
+			<div class="bg_one"></div>
+			<div class="Alert"> <span class="tick_icon"></span> <span class="alert_message"></span> </div>
+			<div class="Errormsg"> <span class="error_icon"></span> <span class="error_message"></span> </div>
+			<div class="signin_container" style="visibility: visible; max-width: 500px;">
+				<div class="signin_box" id="signin_flow">
+					<div class="titlename">Academia - Academic Web Services</div>
+					<div id="signin_div">
+						<div class="signin_head alt_signin_head">
+			    					<span id="headtitle">Sign In</span>
+			    					<span id="trytitle"></span>
+									<div class="service_name">to access <span>Academia - Academic Web Services</span></div>
+									<div class="fielderror"></div>
+						</div>
+						<form name="login" id="login" method="post" novalidate="">
+							<div class="fieldcontainer">
+								<div class="searchparent" id="login_id_container">
+									<div class="textbox_div" id="getusername">
+									<span>
+																					<input id="login_id" placeholder="Email Address" value="" type="text" name="LOGIN_ID" class="textbox errorborder" required="" autocapitalize="off" autocomplete="on" autocorrect="off" tabindex="1">
+										<div class="fielderror errorlabel" role="alert" style="display: block;">This account does not exist.</div>		
+									</span>				
+									</div>
+								</div>
+								<div class="getpassword zeroheight" id="password_container">
+										<div class="hellouser">
+											<div class="username"></div>
+											<span class="Notyou bluetext">Change</span>
+										</div>
+										<div class="textbox_div">
+											<input id="password" placeholder="Enter Password" name="PASSWORD" type="password" class="textbox" required="" autocapitalize="off" autocomplete="current-password" autocorrect="off" maxlength="250"> 
+											<span class="icon-hide show_hide_password"></span>
+											<div class="fielderror"></div>
+											<div class="textbox_actions" id="enableotpoption">
+												<span class="bluetext_action" id="signinwithotp">Sign in using OTP</span>
+												
+											</div>
+										</div> 
+									</div>
+									<div id="otp_container">
+									<div class="hellouser">
+										<div class="username"></div>
+										<span class="Notyou bluetext">Change</span>
+									</div>
+									<div class="textbox_div">
+										<input id="otp" placeholder="Enter OTP" type="number" name="OTP" class="textbox" required="" autocapitalize="off" inputmode="numeric" autocorrect="off" aria-label="Enter OTP"> 
+
+										<div class="fielderror" role="alert"></div>
+										<div class="textbox_actions">
+											<span class="bluetext_action signinwithpassclass" id="signinwithpass">Sign in using password</span>
+											<span class="bluetext_action bluetext_action_right resendotp resendotpC">Resend OTP</span>
+										</div>
+									</div>
+								</div>
+								<div class="textbox_div" id="mfa_totp_container">
+									<input id="mfa_totp" placeholder="Enter TOTP" type="text" name="TOTP" class="textbox" required="" autocapitalize="off" autocomplete="off" autocorrect="off"> 
+								<div class="fielderror"></div>
+								</div>
+								<div class="textbox_div" id="mfa_otp_container">
+									<input id="mfa_otp" placeholder="Enter OTP" type="text" name="MFAOTP" class="textbox" required="" autocapitalize="off" autocomplete="off" autocorrect="off">
+								<div class="fielderror"></div>
+								<div class="textbox_actions">
+									<span class="bluetext_action bluetext_action_right resendotp resendotpC">Resend OTP</span>
+								</div>
+								</div>
+								<div class="textbox_div" id="captcha_container" style="display: none;">
+									<input id="captcha" placeholder="Enter CAPTCHA" type="text" name="captcha" class="textbox" required="" autocapitalize="off" autocomplete="off" autocorrect="off" maxlength="8">
+									<div id="captcha_img" name="captcha" class="textbox"></div>
+									<span class="reloadcaptcha"> </span>
+									<div class="fielderror"></div> 
+								</div>
+								<button class="btn blue" id="nextbtn" tabindex="2"><span class="">Next</span></button>
+							</div>
+							<div class="text16 pointer nomargin" id="recoverybtn" style="right: 0px;">Can't access your mobile device?</div>
+							<div class="text16 pointer nomargin" id="problemsignin" style="right: 0px;">Problem signing in?</div>
+								<div class="line" style="display: none;"></div>
+								<div class="fed_2show" style="display: none;">
+									<div class="signin_fed_text">Sign In Using</div>
+										<span id="fed_signin_options"></span>
+								</div>
+						</form>						<div id="recovery_container">
+							<div class="signin_head recoveryhead">
+								<span class="icon-backarrow backoption" id="goBackToProblemSignin"></span><span class="rec_head_text">Can't access your mobile device?</span><table id="recoverytitle"></table>
+							</div>
+							<div id="recoverymodeContainer"></div>
+							<div class="recoverymodes">
+								<div class="options options_hover showBackupVerificationCode" id="recoverOption">
+									<div class="img_option icon-backup"></div>
+									<div class="option_details">
+										<div class="option_title">Use backup verification code</div>
+										<div class="option_description">Backup verification codes are 12-digit codes that are given to you when you set up multi-factor authentication.</div>
+									</div>
+								</div>
+								<div class="options contact_support">
+									<div class="img_option icon-support"></div>
+									<div class="option_details">
+										<div class="option_title">Contact Support </div>
+										<div class="option_description contactsuprt">Please send us an email at <a href="mailto:en*****et@srm***.e**.i*" style="color:#696969;text-decoration:none;">en*****et@srm***.e**.i*</a> describing your issue so we can assist you.</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div id="backup_container">
+							<div class="signin_head backuphead">
+								<span id="backup_title"><span class="icon-backarrow backoption"></span>Use backup verification code</span>
+								<div class="backup_desc extramargin">Backup verification codes are 12-digit codes that are given to you when you set up multi-factor authentication.</div>
+							</div>
+							<div class="textbox_div" id="backupcode_container">
+								<input id="backupcode" placeholder="Backup verification code" type="text" name="backupcode" class="textbox backupcodesubmit" required="" autocapitalize="off" autocomplete="off" autocorrect="off" maxlength="15">
+								<div class="fielderror"></div>
+								<span class="bluetext_action" id="recovery_passphrase">Sign in using passphrase</span>
+							</div>
+							<button class="btn blue verifyBackupCodebtn">Verify</button>
+							<div class="btn borderlessbtn back_btn"></div>
+						</div>
+						<form id="emailcheck_container" style="display:none;" novalidate="">
+							<div class="signin_head emailcheck_head">
+								<span id="backup_title"><span class="icon-backarrow backoption"></span>Sign-in via email OTP</span>
+								<div class="backup_desc extramargin" id="emailverify_desc">Please enter your registered email address <b>{0}</b> to receive the OTP.</div>
+							</div>
+							<div class="textbox_div" id="emailvalidate_container">
+								<input id="emailcheck" placeholder="Enter Email Address" name="EMAILCHECK" type="text" class="textbox" required="" autocapitalize="off" autocomplete="email" autocorrect="off" maxlength="250"> 
+								<div class="fielderror"></div>
+							</div>
+							<button class="btn blue">Next</button>
+						</form>
+						<form id="emailverify_container" style="display:none;" novalidate="">
+							<div class="signin_head emailverify_head">
+								<span id="backup_title"><span class="icon-backarrow backoption"></span>Sign-in via email OTP</span>
+								<div class="backup_desc extramargin" id="emailverify_desc">Please enter your registered email address <b>{0}</b> to receive the OTP.</div>
+							</div>
+							<div class="textbox_div" id="emailotpverify_container">
+								<input id="emailverify" placeholder="Enter OTP" name="EMAILVERIFY" type="number" class="textbox" required="" autocapitalize="off" autocomplete="one-time-code" autocorrect="off" maxlength="250"> 
+								<div class="fielderror"></div>
+							</div>
+							
+							<span class="bluetext_action" id="signinwithpass" style="display:none;">Sign in using password</span>
+							<span class="bluetext_action bluetext_action_right resendotp resendotp_mb">Resend OTP</span>
+							<div class="textbox_actions_more" id="enablemore">
+								<span class="bluetext_action showmoresigininoption">Sign in another way</span>
+								<span class="bluetext_action bluetext_action_right resendotp" id="resendotp">Resend OTP</span>
+							</div>	
+							<button class="btn blue">Verify</button>
+						</form>
+						<form id="verifycaptcha_container" style="display:none;" novalidate="">
+							<div class="signin_head verifycaptcha_head">
+								<span id="backup_title"><span class="icon-backarrow backoption hideCaptchaContainer"></span></span>
+								<div class="verifyCaptcha_desc extramargin" id="verifycaptcha_desc">Please enter your registered email address <b>{0}</b> to receive the OTP.</div>
+							</div>
+							<div class="textbox_div" id="captchaverify_container">
+								<input id="verifycaptcha" placeholder="Enter CAPTCHA" type="text" name="verifycaptcha" class="textbox" required="" autocapitalize="off" autocomplete="off" autocorrect="off" maxlength="8">
+								<div id="verifycaptcha_img" name="verifycaptcha" class="textbox"></div>
+								<span class="reloadcaptcha icon-Reload"></span>
+								<div class="fielderror"></div>
+							</div>
+							<button class="btn blue">Send OTP</button>
+							<div class="contactSupport text16 backtocaptcha" style="right: 0px;">Contact Support </div>
+						</form>
+					</div>
+					<div class="nopassword_container">
+    				<div class="nopassword_icon icon-hint"></div>
+    				<div class="nopassword_message">You have not set a password for this account. Please click the 'Forgot Password?' link below to set password now.</div>
+    			</div>
+					<div class="password_expiry_container">
+    				<div class="passexpsuccess"></div>
+    				<div class="signin_head">
+							<span id="headtitle">Password expired</span>
+							<div class="pass_name extramargin" id="password_desc"></div>
+					</div>
+					<div class="textbox_div" id="npassword_container">
+							<input id="new_password" placeholder="Enter new password" name="newPassword" type="password" class="textbox" required="" autocapitalize="off" autocomplete="new-password" autocorrect="off">
+							<span class="icon-hide show_hide_Confpassword" data-id="#new_password"></span>
+					</div>
+					<div class="textbox_div" id="rpassword_container">
+							<input id="new_repeat_password" placeholder="Confirm Password" name="cpwd" type="password" class="textbox" required="" autocapitalize="off" autocomplete="new-password" autocorrect="off">
+							<span class="icon-hide show_hide_Confpassword" data-id="#new_repeat_password"></span>
+							<span class="icon-successTick show_Success"></span> 
+					</div>
+					<button class="btn blue" id="changepassword"><span>Set password</span></button>
+    			</div>
+    			<div class="terminate_session_container">
+    				<div class="signin_head">
+							<span id="headtitle">Terminate Sessions</span>
+							<div class="pass_name extramargin" id="password_desc">Apart from changing your password, you can also choose any of the following options, if you feel your account is compromised.</div>
+					</div>
+					<form id="terminate_session_form" name="terminate_session_container" novalidate="">
+						<div class="checkbox_div" id="terminate_web_sess" style="padding: 10px;margin-top:10px;">
+							<input id="termin_web" name="signoutfromweb" class="checkbox_check" type="checkbox">
+							<span class="checkbox">
+								<span class="checkbox_tick"></span>
+							</span>
+							<label for="termin_web" class="session_label">
+								<span class="checkbox_label">Terminate all browser sessions.</span>
+								<span id="terminate_session_web_desc" class="session_terminate_desc">This will sign you out of all your Academia - Academic Web Services account sessions that are active in browsers.</span>
+							</label>
+						</div>
+						<div class="checkbox_div" id="terminate_mob_apps" style="padding: 10px;margin-top:10px;">
+							<input id="termin_mob showOneAuthTerminate" name="signoutfrommobile" class="checkbox_check" type="checkbox">
+							<span class="checkbox">
+								<span class="checkbox_tick"></span>
+							</span>
+							<label for="termin_mob" class="session_label big_checkbox_label">
+								<span class="checkbox_label">Terminate all web and mobile app sessions.</span>
+								<span id="terminate_session_weband_mobile_desc" class="session_terminate_desc">This will sign you out of all the Academia - Academic Web Services apps that are installed on devices. You will need to sign in to them again.</span>
+							</label>
+						</div>
+						<div class="oneAuthLable">
+							<div class="oneauthdiv"> 
+								<span class="oneauth_icon one_auth_icon_v2"></span>
+								<span class="text_container">
+									<div class="text_header">Include OneAuth</div>
+									<div class="text_desc">If enabled, you need to verify your new password in OneAuth app installed on your Primary Device.</div>
+								</span>
+								<div class="togglebtn_div include_oneAuth_button">
+									<input class="real_togglebtn" id="include_oneauth" type="checkbox">
+									<div class="togglebase">
+										<div class="toggle_circle"></div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="checkbox_div" id="terminate_api_tok" style="padding: 10px;margin-top:10px;">
+							<input id="termin_api" name="signoutfromapiToken" class="checkbox_check" type="checkbox">
+							<span class="checkbox">
+								<span class="checkbox_tick"></span>
+							</span>
+							<label for="termin_api" class="session_label big_checkbox_label">
+								<span class="checkbox_label">Revoke connected app's access to your account.</span>
+								<span id="terminate_session_web_desc_apitoken" class="session_terminate_desc">This will revoke all the permissions you’ve granted to any third-party apps/extensions for fetching information from your account.</span>
+							</label>
+						</div>
+						<div class="terminate_session_button">
+							<button class="btn blue checkbox_mod skipbtn" id="terminate_session_skip"><span>Skip</span></button>
+							<button class="btn blue checkbox_mod" id="terminate_session_submit" disabled="true"><span>Continue</span></button>
+						</div>
+					</form>
+    			</div>
+				<div id="success_pcontainer" style="display: none;">
+					<div class="pptick_icon"></div>
+					<div class="ppsuccess_head">Sessions Terminated</div>
+					<div class="ppsuccess_desc">Your Academia - Academic Web Services account's old sessions were logged out as per your preference. Please sign-in with your new password to access your account.</div>
+					<button class="ppsuccess_button">Go to Sign-in</button>
+					<div class="ppsuccess_timer">You will be automatically re-directed to sign-in page in <b><span></span>s</b></div>
+				</div>
+				
+				<div class="trustbrowser_ui">
+					<div class="signin_head">
+						<span id="headtitle">Trust this browser?</span>
+						<div class="service_name mod_sername"></div>
+						<div class="sec_note"></div>
+					</div>
+					<button class="btn blue trustdevice trustbtn">
+						<span class="loadwithbtn"></span>
+						<span class="waittext">Trust</span>
+					</button>
+					<button class="btn grey trustdevice notnowbtn">
+						<span class="loadwithbtn"></span>
+						<span class="waittext">Not now</span>
+					</button>
+				</div>
+				</div>
+			</div>
+			<div id="enableCookie" style="display:none;text-align:center">
+	            <div style="text-align: center;padding: 10px;">CooCooCookies are disabled for your browser. Please enable cookies to continue.</div>
+		    </div>
+		    <script nonce="">
+		    	I18N.load({
+							"IAM.ERROR.ENTER.NEW.PASS" : 'Please enter new password',
+							"IAM.ERROR.WRONG.CONFIRMPASS" : 'Wrong password confirmation'
+						});
+				var enableServiceBasedBanner = false;
+		    </script>
+		
+<input type="checkbox" id="i18n_onclick_handler" style="display: none;">

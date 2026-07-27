@@ -6,18 +6,15 @@ import Link from 'next/link';
 
 export default function LoginPage() {
   const router = useRouter();
-  const [netId, setNetId] = useState('');
-  const [password, setPassword] = useState('');
-  const [showPass, setShowPass] = useState(false);
+  const [cookieString, setCookieString] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const passwordRef = useRef<HTMLInputElement>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    if (!netId.trim() || !password) {
-      setError('Please enter both your NetID and password.');
+    if (!cookieString.trim()) {
+      setError('Please paste your cookie string.');
       return;
     }
     setLoading(true);
@@ -25,7 +22,7 @@ export default function LoginPage() {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ netId: netId.trim(), password }),
+        body: JSON.stringify({ cookieString: cookieString.trim() }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -38,8 +35,6 @@ export default function LoginPage() {
       setError('Network error — please check your connection.');
     } finally {
       setLoading(false);
-      setPassword('');
-      if (passwordRef.current) passwordRef.current.value = '';
     }
   };
 
@@ -72,82 +67,39 @@ export default function LoginPage() {
         <div className="bg-surface rounded-none border border-border p-6 shadow-2xl relative z-10" style={{ clipPath: 'polygon(16px 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%, 0 16px)' }}>
           <div className="absolute inset-0 opacity-20 bg-[radial-gradient(ellipse_at_top,_var(--color-border)_0%,_transparent_100%)] pointer-events-none mix-blend-overlay" />
           
-          {/* Disclaimer */}
+          {/* Instructions */}
           <div className="mb-6 bg-white/5 border border-white/10 p-4" style={{ clipPath: 'polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px)' }}>
-            <p className="text-[11px] text-white/50 leading-relaxed font-sans">
-              <span className="font-bold text-white/80 uppercase tracking-wider">🔒 Secure Link:</span>{' '}
-              Credentials authenticate against SRM Academia directly and are{' '}
-              <span className="font-bold text-accent">NEVER STORED</span>. Ephemeral session expires in 20m.
+            <p className="text-[11px] text-white/80 leading-relaxed font-sans mb-2">
+              <span className="font-bold text-accent uppercase tracking-wider block mb-1">How to connect:</span>
+              1. Log into academia.srmist.edu.in normally in Chrome.<br/>
+              2. Open DevTools (F12) → Application tab → Cookies.<br/>
+              3. Select academia.srmist.edu.in, then copy all cookie name=value pairs as a single semicolon-separated string and paste below.
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5 relative z-10" autoComplete="off">
-            {/* NetID */}
+            {/* Cookie String */}
             <div>
-              <label htmlFor="netId" className="block text-[10px] font-bold text-accent mb-2 uppercase tracking-widest">
-                NetID / Registration Number
+              <label htmlFor="cookieString" className="block text-[10px] font-bold text-accent mb-2 uppercase tracking-widest">
+                Session Cookie String
               </label>
-              <input
-                id="netId"
-                type="text"
-                value={netId}
-                onChange={(e) => setNetId(e.target.value)}
-                placeholder="ns2400@srmist.edu.in"
-                className="w-full px-4 py-3 bg-surface-hover border border-border text-white placeholder:text-white/20 text-sm focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/50 transition-all tracking-wider font-mono"
+              <textarea
+                id="cookieString"
+                value={cookieString}
+                onChange={(e) => setCookieString(e.target.value)}
+                placeholder="JSESSIONID=...; _zcsr_tmp=...; iamcsr=..."
+                className="w-full px-4 py-3 bg-surface-hover border border-border text-white placeholder:text-white/20 text-sm focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/50 transition-all font-mono h-32 resize-none"
                 style={{ clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)' }}
                 autoFocus
                 spellCheck={false}
-                autoCapitalize="none"
-                autoCorrect="off"
                 disabled={loading}
               />
-            </div>
-
-            {/* Password */}
-            <div>
-              <label htmlFor="password" className="block text-[10px] font-bold text-accent mb-2 uppercase tracking-widest">
-                Academia Password
-              </label>
-              <div className="relative">
-                <input
-                  id="password"
-                  ref={passwordRef}
-                  type={showPass ? 'text' : 'password'}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="w-full px-4 py-3 pr-12 bg-surface-hover border border-border text-white placeholder:text-white/20 text-sm focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/50 transition-all font-mono"
-                  style={{ clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)' }}
-                  autoComplete="current-password"
-                  disabled={loading}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPass(!showPass)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-accent transition-colors p-1"
-                  tabIndex={-1}
-                  aria-label={showPass ? 'Hide password' : 'Show password'}
-                >
-                  {showPass ? (
-                    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" /></svg>
-                  ) : (
-                    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
-                  )}
-                </button>
-              </div>
             </div>
 
             {/* Error */}
             {error && (
               <div className="bg-danger/10 border border-danger p-3 text-danger text-xs font-bold uppercase tracking-wider" style={{ clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)' }}>
-                {error.toLowerCase().includes('captcha') ? (
-                  <span className="flex items-center gap-2">
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
-                    Academia is requesting a CAPTCHA. Please log into the portal manually first, then try again here.
-                  </span>
-                ) : (
-                  error
-                )}
+                {error}
               </div>
             )}
 
@@ -161,7 +113,7 @@ export default function LoginPage() {
               {loading ? (
                 <><LoadingSpinner size={18} /> INITIALIZING UPLINK…</>
               ) : (
-                'SECURE LOGIN'
+                'CONNECT SESSION'
               )}
             </button>
           </form>

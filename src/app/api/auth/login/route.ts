@@ -3,8 +3,38 @@ import { getIronSession } from 'iron-session';
 import { cookies } from 'next/headers';
 import { SESSION_OPTIONS } from '@/lib/session';
 import { checkRateLimit } from '@/lib/rateLimit';
-import { loginToAcademia } from '@/lib/scraper';
-import type { SessionData } from '@/types';
+import type { SessionData, Cookie } from '@/types';
+
+function parseManualCookieString(cookieString: string): Cookie[] {
+  const pairs = cookieString.split(';').map(c => c.trim()).filter(Boolean);
+  const cookies: Cookie[] = [];
+
+  for (const pair of pairs) {
+    const splitIdx = pair.indexOf('=');
+    if (splitIdx === -1) continue;
+    const name = pair.slice(0, splitIdx);
+    const value = pair.slice(splitIdx + 1);
+
+    // Heuristically assign domain
+    let domain = 'academia.srmist.edu.in';
+    if (name.includes('csr') || name.includes('iam') || name === 'IAMASS') {
+      domain = '.zoho.in';
+    }
+
+    cookies.push({
+      name,
+      value,
+      domain,
+      path: '/',
+      secure: true,
+      httpOnly: false,
+      sameSite: 'None',
+      expires: -1,
+    });
+  }
+
+  return cookies;
+}
 
 export async function POST(req: NextRequest) {
   // --- Rate limiting ---
@@ -24,29 +54,22 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // --- Parse body ---
-  let netId: string;
-  let password: string;
+  let cookieString: string;
   try {
     const body = await req.json();
-    netId = (body.netId ?? '').toString().trim();
-    if (netId && !netId.includes('@')) {
-      netId = `${netId}@srmist.edu.in`;
-    }
-    password = (body.password ?? '').toString();
+    cookieString = (body.cookieString ?? '').toString().trim();
   } catch {
     return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
   }
 
-  if (!netId || !password) {
-    return NextResponse.json({ error: 'NetID and password are required' }, { status: 400 });
+  if (!cookieString) {
+    return NextResponse.json({ error: 'Cookie string is required' }, { status: 400 });
   }
 
-  // --- Attempt login via Playwright ---
   try {
-    const { cookies: sessionCookies, studentName } = await loginToAcademia(netId, password);
-    // Password is discarded by the scraper — not echoed here
-    password = ''; // Belt-and-suspenders: zero out in this scope too
+    const sessionCookies = parseManualCookieString(cookieString);
+    const studentName = 'Student'; // Cannot scrape name without automated login
+    const netId = 'manual-session';
 
     // --- Store session ---
     const cookieStore = await cookies();
@@ -60,15 +83,9 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ ok: true, studentName });
   } catch (err: unknown) {
-    // Return a safe error — never reveal the password or raw error details
-    let message = 'Login failed — please check your credentials';
+    let message = 'Failed to process session cookies.';
     if (err instanceof Error) {
-      message = err.message.replace(netId, '[netid]'); // strip any accidental netid leak
-      
-      // Sanitize raw Playwright errors (timeouts, locator failures, etc)
-      if (message.includes('Timeout') || message.includes('locator.') || message.includes('page.')) {
-        message = 'Academia portal is currently unresponsive or heavily loaded. Please try again later.';
-      }
+      message = err.message;
     }
     return NextResponse.json({ error: message }, { status: 401 });
   }
