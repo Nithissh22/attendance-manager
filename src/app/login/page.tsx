@@ -7,6 +7,7 @@ import Link from 'next/link';
 export default function LoginPage() {
   const router = useRouter();
   const [cookieString, setCookieString] = useState('');
+  const [studentName, setStudentName] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -22,7 +23,7 @@ export default function LoginPage() {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ cookieString: cookieString.trim() }),
+        body: JSON.stringify({ cookieString: cookieString.trim(), studentName: studentName.trim() }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -78,6 +79,23 @@ export default function LoginPage() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5 relative z-10" autoComplete="off">
+            {/* Student Name */}
+            <div>
+              <label htmlFor="studentName" className="block text-[10px] font-bold text-accent mb-2 uppercase tracking-widest">
+                Student Name (Optional)
+              </label>
+              <input
+                id="studentName"
+                type="text"
+                value={studentName}
+                onChange={(e) => setStudentName(e.target.value)}
+                placeholder="e.g. John Doe"
+                className="w-full px-4 py-3 bg-surface-hover border border-border text-white placeholder:text-white/20 text-sm focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/50 transition-all font-mono"
+                style={{ clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)' }}
+                disabled={loading}
+              />
+            </div>
+
             {/* Cookie String */}
             <div>
               <label htmlFor="cookieString" className="block text-[10px] font-bold text-accent mb-2 uppercase tracking-widest">

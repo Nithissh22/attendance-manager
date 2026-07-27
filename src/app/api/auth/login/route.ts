@@ -54,9 +54,11 @@ export async function POST(req: NextRequest) {
   }
 
   let cookieString: string;
+  let providedName: string;
   try {
     const body = await req.json();
     cookieString = (body.cookieString ?? '').toString().trim();
+    providedName = (body.studentName ?? '').toString().trim();
   } catch {
     return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
   }
@@ -68,22 +70,8 @@ export async function POST(req: NextRequest) {
   try {
     const sessionCookies = parseManualCookieString(cookieString);
     
-    let studentName = 'Student';
-    let netId = 'manual-session';
-    
-    try {
-      const res = await fetch('https://academia.srmist.edu.in/', {
-        headers: { Cookie: cookieString }
-      });
-      const html = await res.text();
-      const $ = load(html);
-      const nameText = $('.user-name, [class*="welcome"], [class*="student"]').first().text();
-      if (nameText) {
-        studentName = nameText.replace(/welcome[,!]?/i, '').trim() || 'Student';
-      }
-    } catch (e) {
-      console.log('[login] Failed to fetch student name:', e);
-    }
+    const studentName = providedName || 'Student';
+    const netId = 'manual-session';
 
     // --- Store session ---
     const cookieStore = await cookies();

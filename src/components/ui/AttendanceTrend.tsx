@@ -19,7 +19,7 @@ export default function AttendanceTrend({ records }: AttendanceTrendProps) {
             : { bar: 'bg-red-400', text: 'text-red-400' };
 
         return (
-          <div key={r.courseCode} className="flex items-center gap-3 group">
+          <div key={`${r.courseCode}-${i}`} className="flex items-center gap-3 group">
             <div className="w-32 shrink-0">
               <p className="text-xs text-white/50 truncate" title={r.courseName}>
                 {r.courseName}
