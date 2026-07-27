@@ -2,9 +2,8 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { SubjectCard } from '@/components/SubjectCard';
-import AttendanceTrend from '@/components/ui/AttendanceTrend';
+import { SubjectDetailModal } from '@/components/SubjectDetailModal';
 import Navbar from '@/components/ui/Navbar';
-import { CardSkeleton } from '@/components/ui/LoadingSpinner';
 import type { AttendanceRecord } from '@/types';
 
 interface DashboardData {
@@ -19,185 +18,188 @@ export default function DashboardPage() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [view, setView] = useState<'grid' | 'trend'>('grid');
+  const [refreshing, setRefreshing] = useState(false);
+  const [selectedSubject, setSelectedSubject] = useState<AttendanceRecord | null>(null);
+
+  const fetchAttendance = async (forceRefresh = false) => {
+    try {
+      if (forceRefresh) setRefreshing(true);
+      
+      // In a real implementation, you might pass a ?refresh=true query param 
+      // if the backend supports forcing a cache invalidation.
+      const res = await fetch(`/api/attendance${forceRefresh ? '?refresh=true' : ''}`);
+      
+      if (res.status === 401) {
+        router.push('/login');
+        return;
+      }
+      if (!res.ok) {
+        const err = await res.json();
+        setError(err.error ?? 'Failed to load attendance data');
+        return;
+      }
+      const json: DashboardData = await res.json();
+      setData(json);
+      setError(null);
+    } catch {
+      setError('Network error — could not fetch attendance data.');
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await fetch('/api/attendance');
-        if (res.status === 401) {
-          router.push('/login');
-          return;
-        }
-        if (!res.ok) {
-          const err = await res.json();
-          setError(err.error ?? 'Failed to load attendance data');
-          return;
-        }
-        const json: DashboardData = await res.json();
-        setData(json);
-      } catch {
-        setError('Network error — could not fetch attendance data.');
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
+    fetchAttendance();
   }, [router]);
 
+  const handleRefresh = () => {
+    fetchAttendance(true);
+  };
+
   const attendance = data?.attendance ?? [];
-  // percentage is a number on AttendanceRecord, no parseFloat needed
-  const atRisk  = attendance.filter((r) => Number(r.percentage) < 65).length;
-  const warning = attendance.filter((r) => Number(r.percentage) >= 65 && Number(r.percentage) < 75).length;
-  const safe    = attendance.length - atRisk - warning;
+  const overall = data?.overallPercentage ?? 0;
+
+  // Determine overall status color
+  let statusColor = 'var(--color-stamp-safe)';
+  if (overall < 65) statusColor = 'var(--color-stamp-risk)';
+  else if (overall < 75) statusColor = 'var(--color-stamp-watch)';
 
   return (
-    <div className="min-h-screen bg-board-bg text-text-board">
+    <div className="min-h-screen bg-board-bg text-text-board flex flex-col">
       <Navbar studentName={data?.studentName} />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 page-enter">
-
-        {/* ── Case Summary Folder ── */}
-        <div className="relative w-full max-w-lg mx-auto mb-12 md:mx-0 md:max-w-sm">
-          {/* Folder Tab */}
-          <div className="absolute -top-7 left-0 bg-card-surface text-text-parchment px-6 py-1.5 rounded-t-sm shadow-md z-10">
-            <span className="font-display font-bold uppercase tracking-widest text-xs">Case Summary</span>
-          </div>
-
-          {/* Paperclip */}
-          <div className="absolute -top-5 right-8 w-5 h-10 border-2 border-slate-400 rounded-full z-20 rotate-[15deg]">
-            <div className="absolute inset-x-1 top-1.5 bottom-0.5 border-2 border-slate-400 rounded-full" />
-          </div>
-
-          {/* Folder body */}
-          <div className="bg-card-surface text-text-parchment p-6 shadow-2xl relative z-0">
-            <h1 className="font-display text-2xl font-bold uppercase tracking-tight mb-0.5">
-              {loading ? '...' : (data?.studentName?.split(' ')[0] ?? 'Student')}
-            </h1>
-            <p className="font-sans text-[10px] uppercase tracking-widest opacity-50 font-semibold mb-6">
-              {data?.lastUpdated
-                ? `Case synced ${new Date(data.lastUpdated).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
-                : 'Awaiting sync...'}
+      <main className="flex-1 flex flex-col max-w-lg mx-auto w-full px-4 sm:px-6 py-8 page-enter overflow-x-hidden">
+        
+        {loading ? (
+          <div className="flex-1 flex flex-col items-center justify-center">
+            <div className="w-16 h-16 border-4 border-card-surface/20 border-t-card-surface rounded-full animate-spin mb-6" />
+            <p className="font-display text-xl font-bold uppercase tracking-widest text-card-surface animate-pulse">
+              Reviewing the file...
             </p>
-
-            {loading ? (
-              <div className="h-36 animate-pulse bg-text-parchment/10 rounded-sm" />
-            ) : (
-              <div className="space-y-4">
-                <div>
-                  <p className="font-sans text-[10px] uppercase tracking-widest opacity-50 font-semibold mb-0.5">Overall Verdict</p>
-                  <p className="font-mono text-5xl font-bold tracking-tighter">
-                    {(data?.overallPercentage ?? 0).toFixed(1)}%
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4 border-t border-text-parchment/10 pt-4">
-                  <div>
-                    <p className="font-sans text-[10px] uppercase tracking-widest opacity-50 font-semibold mb-0.5">Total Subjects</p>
-                    <p className="font-mono text-xl font-bold">{attendance.length}</p>
-                  </div>
-                  <div>
-                    <p className="font-sans text-[10px] uppercase tracking-widest opacity-50 font-semibold mb-0.5">Status</p>
-                    {atRisk > 0 ? (
-                      <p className="font-display font-bold text-base uppercase" style={{ color: '#8C1D18' }}>At Risk ({atRisk})</p>
-                    ) : warning > 0 ? (
-                      <p className="font-display font-bold text-base uppercase" style={{ color: '#A17F2E' }}>Watch ({warning})</p>
-                    ) : (
-                      <p className="font-display font-bold text-base uppercase" style={{ color: '#3F4B3D' }}>Safe</p>
-                    )}
-                  </div>
-                </div>
-
-                <div className="flex justify-between border-t border-text-parchment/10 pt-4 font-mono text-sm">
-                  <div className="flex flex-col" style={{ color: '#3F4B3D' }}>
-                    <span className="text-[10px] opacity-70 uppercase font-sans tracking-wider">Safe</span>
-                    <span className="text-xl font-bold">{safe}</span>
-                  </div>
-                  <div className="flex flex-col" style={{ color: '#A17F2E' }}>
-                    <span className="text-[10px] opacity-70 uppercase font-sans tracking-wider">Watch</span>
-                    <span className="text-xl font-bold">{warning}</span>
-                  </div>
-                  <div className="flex flex-col" style={{ color: '#8C1D18' }}>
-                    <span className="text-[10px] opacity-70 uppercase font-sans tracking-wider">At Risk</span>
-                    <span className="text-xl font-bold">{atRisk}</span>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {error && (
-              <div className="mt-4 border-2 border-stamp-risk text-stamp-risk p-3 font-mono text-xs uppercase font-bold text-center">
-                {error}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* ── View tabs ── */}
-        {!loading && data && (
-          <div className="flex gap-2 mb-0 ml-1">
-            <button
-              onClick={() => setView('grid')}
-              className={`px-5 py-2 rounded-t-sm font-display tracking-widest text-xs uppercase transition-all ${
-                view === 'grid'
-                  ? 'bg-card-surface text-text-parchment shadow-md relative z-10'
-                  : 'bg-card-surface/30 text-text-board/50 hover:bg-card-surface/50 hover:text-text-board'
-              }`}
-            >
-              Case Files
-            </button>
-            <button
-              onClick={() => setView('trend')}
-              className={`px-5 py-2 rounded-t-sm font-display tracking-widest text-xs uppercase transition-all ${
-                view === 'trend'
-                  ? 'bg-card-surface text-text-parchment shadow-md relative z-10'
-                  : 'bg-card-surface/30 text-text-board/50 hover:bg-card-surface/50 hover:text-text-board'
-              }`}
-            >
-              Trend Analysis
-            </button>
-          </div>
-        )}
-
-        {/* ── Content area ── */}
-        <div className="relative w-full">
-          {loading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-10 pt-10">
-              {Array.from({ length: 6 }).map((_, i) => <CardSkeleton key={i} />)}
+            {/* Fake progress bar */}
+            <div className="w-48 h-1 bg-white/10 mt-4 overflow-hidden">
+              <div className="h-full bg-card-surface animate-[progress_5s_ease-in-out_infinite]" style={{ width: '60%' }} />
             </div>
-          ) : view === 'grid' ? (
-            attendance.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-24 text-center">
-                <p className="font-display text-2xl font-bold uppercase tracking-widest opacity-40 mb-2">No Records Found</p>
-                <p className="font-sans text-sm opacity-30">Academia returned 0 subjects. Try logging out and back in.</p>
+          </div>
+        ) : error || attendance.length === 0 ? (
+          <div className="flex-1 flex flex-col items-center justify-center text-center px-4">
+            <div className="w-20 h-20 mb-6 border-4 border-stamp-risk text-stamp-risk rounded-full flex items-center justify-center rotate-12 stamp-down">
+              <span className="font-display font-bold text-3xl">X</span>
+            </div>
+            <h2 className="font-display text-2xl font-bold uppercase tracking-widest text-stamp-risk mb-2">
+              Case Gone Cold
+            </h2>
+            <p className="font-sans text-sm opacity-60 mb-8 max-w-xs leading-relaxed">
+              {error || 'No records found in the archive. Your session may have expired.'}
+            </p>
+            <button 
+              onClick={() => router.push('/login')}
+              className="bg-card-surface text-text-parchment font-display font-bold uppercase tracking-widest px-8 py-3 shadow-lg active:scale-95 transition-transform"
+            >
+              Reconnect Session
+            </button>
+          </div>
+        ) : (
+          <>
+            {/* ── Hero Overall Percentage ── */}
+            <div className="flex flex-col items-center text-center mb-10 stamp-down relative">
+              {/* Classified Stamp decoration */}
+              <div className="absolute top-0 right-4 md:-right-8 opacity-10 -rotate-12 pointer-events-none">
+                <div className="border-4 border-current p-2 font-display text-2xl font-bold uppercase tracking-widest" style={{ color: statusColor }}>
+                  CLASSIFIED
+                </div>
               </div>
-            ) : (
-              /* 
-                The corkboard grid. Extra top padding so pushpins (position:absolute, -top-4)
-                don't clip at the container boundary.
-              */
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-10 pt-10 stagger">
-                {attendance.map((r, i) => (
-                  <SubjectCard key={`${r.courseCode}-${i}`} subject={r} index={i} />
-                ))}
-              </div>
-            )
-          ) : (
-            <div className="bg-card-surface text-text-parchment p-8 shadow-xl min-h-[400px] relative">
-              <div
-                className="absolute top-4 right-4 w-14 h-14 rounded-full border-4 flex items-center justify-center opacity-20 -rotate-12 pointer-events-none"
-                style={{ borderColor: '#8C1D18', color: '#8C1D18' }}
+
+              <p className="font-sans text-[10px] uppercase tracking-widest opacity-50 font-bold mb-2">Overall Verdict</p>
+              <h1 
+                className="font-mono text-8xl font-bold tracking-tighter leading-none mb-4"
+                style={{ color: statusColor, textShadow: `0 0 40px ${statusColor}40` }}
               >
-                <span className="font-display font-bold text-[9px] uppercase text-center leading-tight">CONF</span>
+                {overall.toFixed(1)}%
+              </h1>
+              <div className="flex gap-6 font-sans text-[10px] uppercase tracking-widest font-bold">
+                <span className="opacity-60">
+                  <span className="text-white opacity-100">{attendance.filter(r => (Number(r.percentage)||0) >= 75).length}</span> Safe
+                </span>
+                <span className="opacity-60">
+                  <span className="text-white opacity-100">{attendance.filter(r => { const p = Number(r.percentage)||0; return p >= 65 && p < 75; }).length}</span> Watch
+                </span>
+                <span className="opacity-60">
+                  <span className="text-white opacity-100">{attendance.filter(r => (Number(r.percentage)||0) < 65).length}</span> Risk
+                </span>
               </div>
-              <h2 className="font-display text-xl font-bold uppercase tracking-widest mb-8 border-b-2 border-text-parchment/20 pb-2 inline-block">
-                Attendance Deficit Report
-              </h2>
-              <AttendanceTrend records={attendance} />
             </div>
-          )}
-        </div>
+
+            {/* ── Subject Carousel ── */}
+            <div className="mb-auto">
+              <div className="flex items-center justify-between mb-4 px-2">
+                <h2 className="font-display text-sm font-bold uppercase tracking-widest opacity-80">
+                  Subject Dossiers
+                </h2>
+                <span className="font-sans text-[9px] uppercase tracking-widest opacity-40">
+                  Swipe →
+                </span>
+              </div>
+              
+              {/* Horizontal Scroll Container */}
+              <div className="flex overflow-x-auto gap-6 pb-8 pt-4 px-2 snap-x snap-mandatory hide-scrollbar -mx-4 sm:mx-0 sm:px-0">
+                {/* Spacer for first item padding */}
+                <div className="w-2 shrink-0 sm:hidden" />
+                
+                {attendance.map((subject, idx) => (
+                  <SubjectCard 
+                    key={subject.courseCode} 
+                    subject={subject} 
+                    index={idx}
+                    onClick={() => setSelectedSubject(subject)}
+                  />
+                ))}
+                
+                {/* Spacer for last item padding */}
+                <div className="w-2 shrink-0 sm:hidden" />
+              </div>
+            </div>
+
+            {/* ── Footer ── */}
+            <div className="mt-8 pt-6 border-t border-white/10 flex items-center justify-between px-2 pb-6">
+              <div className="flex flex-col">
+                <span className="font-sans text-[9px] uppercase tracking-widest opacity-40 font-bold mb-1">
+                  Last Synced
+                </span>
+                <span className="font-mono text-xs opacity-70">
+                  {data?.lastUpdated ? new Date(data.lastUpdated).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '--:--'}
+                </span>
+              </div>
+              
+              <button 
+                onClick={handleRefresh}
+                disabled={refreshing}
+                className="flex items-center gap-2 bg-white/5 hover:bg-white/10 active:bg-white/20 px-4 py-2 rounded-sm transition-colors disabled:opacity-50"
+              >
+                <svg 
+                  className={`w-3.5 h-3.5 opacity-60 ${refreshing ? 'animate-spin' : ''}`} 
+                  fill="none" 
+                  viewBox="0 0 24 24" 
+                  stroke="currentColor" 
+                  strokeWidth={2}
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                <span className="font-display text-[10px] uppercase tracking-widest font-bold">
+                  {refreshing ? 'Syncing...' : 'Refresh'}
+                </span>
+              </button>
+            </div>
+          </>
+        )}
       </main>
+
+      {/* Detail Modal */}
+      <SubjectDetailModal 
+        subject={selectedSubject} 
+        onClose={() => setSelectedSubject(null)} 
+      />
     </div>
   );
 }

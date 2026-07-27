@@ -983,5 +983,140 @@
       }
     ],
     "savedAt": 1785187843821
+  },
+  "e0f47349-bd6d-4e9e-b53d-86758c40223d": {
+    "cookies": [
+      {
+        "name": "zalb_74c3a1eecc",
+        "value": "2c931b86041ba1602b28937efb0a6575",
+        "domain": "academia.srmist.edu.in",
+        "path": "/",
+        "secure": true,
+        "httpOnly": false,
+        "sameSite": "None",
+        "expires": -1
+      },
+      {
+        "name": "cli_rgn",
+        "value": "IN",
+        "domain": "academia.srmist.edu.in",
+        "path": "/",
+        "secure": true,
+        "httpOnly": false,
+        "sameSite": "None",
+        "expires": -1
+      },
+      {
+        "name": "zalb_f0e8db9d3d",
+        "value": "64b493523048029ac1c66021ec61ec6e",
+        "domain": "academia.srmist.edu.in",
+        "path": "/",
+        "secure": true,
+        "httpOnly": false,
+        "sameSite": "None",
+        "expires": -1
+      },
+      {
+        "name": "stk",
+        "value": "ccf4048ce16f35025cf2df787c327c82",
+        "domain": "academia.srmist.edu.in",
+        "path": "/",
+        "secure": true,
+        "httpOnly": false,
+        "sameSite": "None",
+        "expires": -1
+      },
+      {
+        "name": "zalb_3309580ed5",
+        "value": "291445b8f0f7b61edd901158c8be6a53",
+        "domain": "academia.srmist.edu.in",
+        "path": "/",
+        "secure": true,
+        "httpOnly": false,
+        "sameSite": "None",
+        "expires": -1
+      },
+      {
+        "name": "CT_CSRF_TOKEN",
+        "value": "f371b1a8-2ec6-4e04-890c-187831606edc",
+        "domain": "academia.srmist.edu.in",
+        "path": "/",
+        "secure": true,
+        "httpOnly": false,
+        "sameSite": "None",
+        "expires": -1
+      },
+      {
+        "name": "JSESSIONID",
+        "value": "22C5E48A500E83C34E4438E23AFA3C23",
+        "domain": "academia.srmist.edu.in",
+        "path": "/",
+        "secure": true,
+        "httpOnly": false,
+        "sameSite": "None",
+        "expires": -1
+      },
+      {
+        "name": "iamcsr",
+        "value": "d008b90dc7f8f0aba38c3bcf34593a12c41b1f46891e865443fc092608734a45c90c98cadeff27ab8c16d7601d184f2709ee0fd4721b1fbdc11d890c400ca3e2",
+        "domain": "academia.srmist.edu.in",
+        "path": "/",
+        "secure": true,
+        "httpOnly": false,
+        "sameSite": "None",
+        "expires": -1
+      },
+      {
+        "name": "__Secure-iamsdt_client_10002227248",
+        "value": "0.CAESdBIwn5h1_QGw23hEmOKDtd2H3V5Hc1Kre0EqdHK-G0QE6195lMnIwouODZFKD8yvCZoRGkCyUFCyspEyZEgD1G7QxBYKw54sXDRfplDeZd123060ghoeqWO0KaZ-VNyD7_tDum6JS1fi_52YmvfVqNmhOb-AIPqHgO60urepEw",
+        "domain": "academia.srmist.edu.in",
+        "path": "/",
+        "secure": true,
+        "httpOnly": false,
+        "sameSite": "None",
+        "expires": -1
+      },
+      {
+        "name": "_iamadt_client_10002227248",
+        "value": "9f9875fd01b0db784498e283b5dd87dd5e477352ab7b412a7472be1b4404eb5f7994c9c8c28b8e0d914a0fccaf099a11",
+        "domain": "academia.srmist.edu.in",
+        "path": "/",
+        "secure": true,
+        "httpOnly": false,
+        "sameSite": "None",
+        "expires": -1
+      },
+      {
+        "name": "_iambdt_client_10002227248",
+        "value": "b25050b2b29132644803d46ed0c4160ac39e2c5c345fa650de65dd76df4eb4821a1ea963b429a67e54dc83effb43ba6e894b57e2ff9d989af7d5a8d9a139bf80",
+        "domain": "academia.srmist.edu.in",
+        "path": "/",
+        "secure": true,
+        "httpOnly": false,
+        "sameSite": "None",
+        "expires": -1
+      },
+      {
+        "name": "_z_identity",
+        "value": "true",
+        "domain": "academia.srmist.edu.in",
+        "path": "/",
+        "secure": true,
+        "httpOnly": false,
+        "sameSite": "None",
+        "expires": -1
+      },
+      {
+        "name": "zccpn",
+        "value": "8c059b56a8a91f0b3490c15dbd148820b026f125e595944dfe4051dec86a2cfa89d32e40a67585bfbb8facf45fdf261499b13f84fbf4fc5376437e7ee26b8699",
+        "domain": "academia.srmist.edu.in",
+        "path": "/",
+        "secure": true,
+        "httpOnly": false,
+        "sameSite": "None",
+        "expires": -1
+      }
+    ],
+    "savedAt": 1785188077468
   }
 }
