@@ -1,5 +1,5 @@
 import { load } from 'cheerio';
-import type { AttendanceRecord } from '@/types';
+import type { AttendanceRecord, Cookie } from '@/types';
 
 // ---------------------------------------------------------------------------
 // Selector constants — UPDATE HERE if SRM changes their HTML
@@ -46,7 +46,7 @@ async function getBrowser() {
 export async function loginToAcademia(
   netId: string,
   password: string
-): Promise<{ cookies: string[]; studentName: string }> {
+): Promise<{ cookies: Cookie[]; studentName: string }> {
   const browser = await getBrowser();
   const context = await browser.newContext({
     userAgent:
@@ -184,8 +184,7 @@ export async function loginToAcademia(
     }
 
     // Collect session cookies
-    const rawCookies = await context.cookies();
-    const cookies = rawCookies.map((c) => `${c.name}=${c.value}`);
+    const cookies = await context.cookies();
 
     return { cookies, studentName };
   } finally {
@@ -195,26 +194,9 @@ export async function loginToAcademia(
 }
 
 // ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-function parseCookieStrings(cookieStrings: string[], url: string) {
-  const urlObj = new URL(url);
-  return cookieStrings.map((c) => {
-    const [nameValue] = c.split(';');
-    const [name, ...valueParts] = nameValue.split('=');
-    return {
-      name: name.trim(),
-      value: valueParts.join('=').trim(),
-      domain: urlObj.hostname,
-      path: '/',
-    };
-  });
-}
-
-// ---------------------------------------------------------------------------
 // Attendance scraper
 // ---------------------------------------------------------------------------
-export async function scrapeAttendance(cookies: string[]): Promise<AttendanceRecord[]> {
+export async function scrapeAttendance(cookies: Cookie[]): Promise<AttendanceRecord[]> {
   const browser = await getBrowser();
   const context = await browser.newContext({
     userAgent:
@@ -222,8 +204,7 @@ export async function scrapeAttendance(cookies: string[]): Promise<AttendanceRec
     viewport: { width: 1280, height: 720 },
   });
 
-  const cookieObjects = parseCookieStrings(cookies, ACADEMIA_BASE);
-  await context.addCookies(cookieObjects);
+  await context.addCookies(cookies);
 
   const page = await context.newPage();
 
@@ -314,12 +295,12 @@ export async function scrapeAttendance(cookies: string[]): Promise<AttendanceRec
   }
 }
 
-export async function scrapeTimetable(_cookies: string[]): Promise<any[]> {
+export async function scrapeTimetable(_cookies: Cookie[]): Promise<any[]> {
   // TODO: Implement timetable scraping
   return [];
 }
 
-export async function scrapeMarks(_cookies: string[]): Promise<any[]> {
+export async function scrapeMarks(_cookies: Cookie[]): Promise<any[]> {
   // TODO: Implement marks scraping
   return [];
 }
