@@ -69,7 +69,7 @@ export async function scrapeAttendance(cookies: Cookie[]): Promise<AttendanceRec
     console.log(`[scraper] Navigating to: ${targetUrl}`);
 
     try {
-      await page.goto(`${ACADEMIA_BASE}/`, { waitUntil: 'networkidle', timeout: 15_000 });
+      await page.goto(`${ACADEMIA_BASE}/`, { waitUntil: 'commit', timeout: 15_000 });
     } catch (e) {
       // Ignore timeout if network doesn't completely idle
     }
@@ -89,7 +89,22 @@ export async function scrapeAttendance(cookies: Cookie[]): Promise<AttendanceRec
     console.log(`[scraper-debug] Body (500 chars): ${body.substring(0, 500)}`);
     console.log(`[scraper-debug] Includes 'Course Code': ${body.includes('Course Code')}`);
 
-    const $ = load(body);
+    // Extract HTML from pageSanitizer.sanitize('...')
+    const match = body.match(/pageSanitizer\.sanitize\('([\s\S]*?)'\);/);
+    let tableHtml = body; // fallback to body if no match
+    if (match && match[1]) {
+      tableHtml = match[1]
+        .replace(/\\'/g, "'")
+        .replace(/\\"/g, '"')
+        .replace(/\\n/g, '\n')
+        .replace(/\\t/g, '\t')
+        .replace(/\\\//g, '/');
+      console.log('[scraper] Successfully extracted table HTML from pageSanitizer');
+    } else {
+      console.log('[scraper] pageSanitizer not found, falling back to raw body');
+    }
+
+    const $ = load(tableHtml);
     const tableCount = $('table').length;
     console.log(`[scraper] Tables found: ${tableCount}`);
 
