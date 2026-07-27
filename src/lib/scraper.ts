@@ -254,7 +254,13 @@ export async function scrapeAttendance(cookies: string[]): Promise<AttendanceRec
     });
 
     try {
-      await page.goto(targetUrl, { waitUntil: 'domcontentloaded', timeout: 30_000 });
+      const response = await page.goto(targetUrl, { waitUntil: 'domcontentloaded', timeout: 30_000 });
+      if (response) {
+        console.log(`[scraper-debug] Status: ${response.status()}`);
+        const body = await response.text();
+        console.log(`[scraper-debug] Body (500 chars): ${body.substring(0, 500)}`);
+        console.log(`[scraper-debug] Includes 'Course Code': ${body.includes('Course Code')}`);
+      }
     } catch (e: any) {
       throw new Error(`Failed to load attendance page: ${e.message}`);
     }
