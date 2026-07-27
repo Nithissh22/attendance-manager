@@ -27,7 +27,7 @@ const LOGIN_URL = `${ACADEMIA_BASE}/`;
 async function getBrowser() {
   const { chromium } = await import('playwright');
   return chromium.launch({
-    headless: true,
+    headless: false,
     args: [
       '--no-sandbox',
       '--disable-setuid-sandbox',
