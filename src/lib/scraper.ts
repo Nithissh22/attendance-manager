@@ -216,7 +216,11 @@ function parseCookieStrings(cookieStrings: string[], url: string) {
 // ---------------------------------------------------------------------------
 export async function scrapeAttendance(cookies: string[]): Promise<AttendanceRecord[]> {
   const browser = await getBrowser();
-  const context = await browser.newContext();
+  const context = await browser.newContext({
+    userAgent:
+      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    viewport: { width: 1280, height: 720 },
+  });
 
   const cookieObjects = parseCookieStrings(cookies, ACADEMIA_BASE);
   await context.addCookies(cookieObjects);
@@ -234,6 +238,20 @@ export async function scrapeAttendance(cookies: string[]): Promise<AttendanceRec
   try {
     const targetUrl = `${ACADEMIA_BASE}${ATTENDANCE_SELECTORS.pageUrl}`;
     console.log(`[scraper] Navigating to: ${targetUrl}`);
+
+    // Prevent Zoho from forcing a download of the HTML by stripping Content-Disposition
+    await page.route('**/*', async (route) => {
+      try {
+        const response = await route.fetch();
+        const headers = { ...response.headers() };
+        if (headers['content-disposition']) {
+          delete headers['content-disposition'];
+        }
+        await route.fulfill({ response, headers });
+      } catch (e) {
+        await route.continue().catch(() => {});
+      }
+    });
 
     try {
       await page.goto(targetUrl, { waitUntil: 'domcontentloaded', timeout: 30_000 });
