@@ -3,6 +3,7 @@ import { getIronSession } from 'iron-session';
 import { cookies } from 'next/headers';
 import { SESSION_OPTIONS, isSessionValid } from '@/lib/session';
 import { scrapeAttendance } from '@/lib/scraper';
+import { getSessionCookies } from '@/lib/store';
 import type { SessionData } from '@/types';
 
 export async function GET(_req: NextRequest) {
@@ -19,7 +20,15 @@ export async function GET(_req: NextRequest) {
     const cacheAge = session.attendanceCacheTime ? now - session.attendanceCacheTime : Infinity;
 
     if (!attendance || cacheAge > 15 * 60 * 1000) { // 15 minutes cache
-      attendance = await scrapeAttendance(session.cookies);
+      if (!session.sessionId) {
+        throw new Error('Session ID is missing. Please log in again.');
+      }
+      const sessionCookies = getSessionCookies(session.sessionId);
+      if (!sessionCookies) {
+        throw new Error('Session data not found on server. Please log in again.');
+      }
+      
+      attendance = await scrapeAttendance(sessionCookies);
       
       // Save back to session (since iron-session encodes to a cookie, keep it small)
       if (attendance && attendance.length < 20) {

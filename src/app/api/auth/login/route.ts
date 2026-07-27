@@ -3,6 +3,8 @@ import { getIronSession } from 'iron-session';
 import { cookies } from 'next/headers';
 import { SESSION_OPTIONS } from '@/lib/session';
 import { checkRateLimit } from '@/lib/rateLimit';
+import { saveSessionCookies } from '@/lib/store';
+import crypto from 'crypto';
 import type { SessionData, Cookie } from '@/types';
 
 function parseManualCookieString(cookieString: string): Cookie[] {
@@ -74,7 +76,11 @@ export async function POST(req: NextRequest) {
     // --- Store session ---
     const cookieStore = await cookies();
     const session = await getIronSession<SessionData>(cookieStore, SESSION_OPTIONS);
-    session.cookies = sessionCookies;
+    
+    const sessionId = crypto.randomUUID();
+    saveSessionCookies(sessionId, sessionCookies);
+    
+    session.sessionId = sessionId;
     session.studentName = studentName;
     session.netId = netId;
     session.loginTime = Date.now();

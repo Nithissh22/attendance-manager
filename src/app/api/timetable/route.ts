@@ -3,6 +3,7 @@ import { getIronSession } from 'iron-session';
 import { cookies } from 'next/headers';
 import { SESSION_OPTIONS, isSessionValid } from '@/lib/session';
 import { scrapeTimetable } from '@/lib/scraper';
+import { getSessionCookies } from '@/lib/store';
 import type { SessionData } from '@/types';
 
 export async function GET(_req: NextRequest) {
@@ -14,7 +15,14 @@ export async function GET(_req: NextRequest) {
   }
 
   try {
-    const slots = await scrapeTimetable(session.cookies);
+    if (!session.sessionId) {
+      throw new Error('Session ID is missing. Please log in again.');
+    }
+    const sessionCookies = getSessionCookies(session.sessionId);
+    if (!sessionCookies) {
+      throw new Error('Session data not found on server. Please log in again.');
+    }
+    const slots = await scrapeTimetable(sessionCookies);
     return NextResponse.json({ slots });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Failed to fetch timetable';

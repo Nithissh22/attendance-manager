@@ -43,7 +43,7 @@ export interface Cookie {
 }
 
 export interface SessionData {
-  cookies: Cookie[];
+  sessionId?: string;
   studentName: string;
   netId: string;
   loginTime: number;
