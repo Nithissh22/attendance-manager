@@ -239,63 +239,20 @@ export async function scrapeAttendance(cookies: string[]): Promise<AttendanceRec
     const targetUrl = `${ACADEMIA_BASE}${ATTENDANCE_SELECTORS.pageUrl}`;
     console.log(`[scraper] Navigating to: ${targetUrl}`);
 
-    // Prevent Zoho from forcing a download of the HTML by stripping Content-Disposition
-    await page.route('**/*', async (route) => {
-      try {
-        const response = await route.fetch();
-        const headers = { ...response.headers() };
-        if (headers['content-disposition']) {
-          delete headers['content-disposition'];
-        }
-        await route.fulfill({ response, headers });
-      } catch (e) {
-        await route.continue().catch(() => {});
-      }
+    const response = await context.request.get(targetUrl, {
+      headers: { 'X-Requested-With': 'XMLHttpRequest' },
     });
 
-    try {
-      const response = await page.goto(targetUrl, { waitUntil: 'domcontentloaded', timeout: 30_000 });
-      if (response) {
-        console.log(`[scraper-debug] Status: ${response.status()}`);
-        const body = await response.text();
-        console.log(`[scraper-debug] Body (500 chars): ${body.substring(0, 500)}`);
-        console.log(`[scraper-debug] Includes 'Course Code': ${body.includes('Course Code')}`);
-      }
-    } catch (e: any) {
-      throw new Error(`Failed to load attendance page: ${e.message}`);
+    if (!response.ok()) {
+      throw new Error(`Failed to fetch attendance data: ${response.status()}`);
     }
 
-    await page.waitForTimeout(2000);
+    const body = await response.text();
+    console.log(`[scraper-debug] Status: ${response.status()}`);
+    console.log(`[scraper-debug] Body (500 chars): ${body.substring(0, 500)}`);
+    console.log(`[scraper-debug] Includes 'Course Code': ${body.includes('Course Code')}`);
 
-    const landedUrl = page.url();
-    console.log(`[scraper] Landed on: ${landedUrl}`);
-
-    if (landedUrl.includes('login') || landedUrl === ACADEMIA_BASE + '/') {
-      throw new Error('Session expired');
-    }
-
-    await page.waitForSelector('table', { timeout: 15000 }).catch(() => {});
-
-    // Log frames
-    const frames = page.frames();
-    console.log(`[scraper] Frame count: ${frames.length}`);
-    frames.forEach((f, i) => {
-      console.log(`[scraper]   frame[${i}] url=${f.url()}`);
-    });
-
-    // Collect HTML from outer page + all accessible frames
-    let combinedHtml = await page.content();
-    for (const f of frames) {
-      try {
-        combinedHtml += await f.content();
-      } catch (_e) {
-        // Skip cross-origin or inaccessible frames
-      }
-    }
-
-    console.log(`[scraper] Combined HTML length: ${combinedHtml.length} chars`);
-
-    const $ = load(combinedHtml);
+    const $ = load(body);
     const tableCount = $('table').length;
     console.log(`[scraper] Tables found: ${tableCount}`);
 
@@ -346,7 +303,7 @@ export async function scrapeAttendance(cookies: string[]): Promise<AttendanceRec
     }
 
     if (records.length === 0) {
-      require('fs').writeFileSync('academia_attendance_debug.html', combinedHtml);
+      require('fs').writeFileSync('academia_attendance_debug.html', body);
       console.log('[scraper] 0 records — wrote academia_attendance_debug.html');
     }
 
