@@ -17,11 +17,7 @@ function parseManualCookieString(cookieString: string): Cookie[] {
     const name = pair.slice(0, splitIdx);
     const value = pair.slice(splitIdx + 1);
 
-    // Heuristically assign domain
-    let domain = 'academia.srmist.edu.in';
-    if (name.includes('csr') || name.includes('iam') || name === 'IAMASS') {
-      domain = '.zoho.in';
-    }
+    const domain = 'academia.srmist.edu.in';
 
     cookies.push({
       name,
