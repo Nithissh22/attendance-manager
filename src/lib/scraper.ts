@@ -220,16 +220,20 @@ export async function scrapeAttendance(cookies: Cookie[]): Promise<AttendanceRec
     const targetUrl = `${ACADEMIA_BASE}${ATTENDANCE_SELECTORS.pageUrl}`;
     console.log(`[scraper] Navigating to: ${targetUrl}`);
 
-    const response = await context.request.get(targetUrl, {
-      headers: { 'X-Requested-With': 'XMLHttpRequest' },
-    });
-
-    if (!response.ok()) {
-      throw new Error(`Failed to fetch attendance data: ${response.status()}`);
+    try {
+      await page.goto(`${ACADEMIA_BASE}/`, { waitUntil: 'networkidle', timeout: 15_000 });
+    } catch (e) {
+      // Ignore timeout if network doesn't completely idle
     }
 
-    const body = await response.text();
-    console.log(`[scraper-debug] Status: ${response.status()}`);
+    const body = await page.evaluate(async (url) => {
+      const res = await fetch(url, {
+        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        credentials: 'include',
+      });
+      return res.text();
+    }, targetUrl);
+
     console.log(`[scraper-debug] Body (500 chars): ${body.substring(0, 500)}`);
     console.log(`[scraper-debug] Includes 'Course Code': ${body.includes('Course Code')}`);
 
