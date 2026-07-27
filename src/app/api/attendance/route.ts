@@ -28,12 +28,23 @@ export async function GET(_req: NextRequest) {
         throw new Error('Session data not found on server. Please log in again.');
       }
       
-      attendance = await scrapeAttendance(sessionCookies);
+      const result = await scrapeAttendance(sessionCookies);
+      attendance = result.records;
       
-      // Save back to session (since iron-session encodes to a cookie, keep it small)
+      let sessionUpdated = false;
+
       if (attendance && attendance.length < 20) {
         session.attendanceCache = attendance;
         session.attendanceCacheTime = now;
+        sessionUpdated = true;
+      }
+
+      if (result.studentName && result.studentName !== session.studentName) {
+        session.studentName = result.studentName;
+        sessionUpdated = true;
+      }
+
+      if (sessionUpdated) {
         await session.save();
       }
     }

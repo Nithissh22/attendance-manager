@@ -44,7 +44,7 @@ async function getBrowser() {
 // ---------------------------------------------------------------------------
 // Attendance scraper
 // ---------------------------------------------------------------------------
-export async function scrapeAttendance(cookies: Cookie[]): Promise<AttendanceRecord[]> {
+export async function scrapeAttendance(cookies: Cookie[]): Promise<{ records: AttendanceRecord[], studentName?: string }> {
   const browser = await getBrowser();
   const context = await browser.newContext({
     userAgent:
@@ -108,6 +108,17 @@ export async function scrapeAttendance(cookies: Cookie[]): Promise<AttendanceRec
     const tableCount = $('table').length;
     console.log(`[scraper] Tables found: ${tableCount}`);
 
+    let studentName: string | undefined;
+    $('td').each((i, el) => {
+      if ($(el).text().trim() === 'Name:') {
+        const nameStrong = $(el).next('td').find('strong');
+        if (nameStrong.length > 0) {
+          studentName = nameStrong.text().trim();
+          console.log(`[scraper] Found student name: ${studentName}`);
+        }
+      }
+    });
+
     const records: AttendanceRecord[] = [];
 
     $('table').each((tIdx, table) => {
@@ -159,7 +170,7 @@ export async function scrapeAttendance(cookies: Cookie[]): Promise<AttendanceRec
       console.log('[scraper] 0 records — wrote academia_attendance_debug.html');
     }
 
-    return records;
+    return { records, studentName };
   } finally {
     await context.close();
     await browser.close();
